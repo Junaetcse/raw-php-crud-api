@@ -4,6 +4,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
+
 // include database and object files
 include_once '../config/Db.php';
 include_once '../object/Note.php';
@@ -16,6 +17,6 @@ $db = $database->getConnection();
         $id = $_REQUEST['id'];
         $note = new Note($db);
         $note_data = $note->findNote($id);
-        echo json_encode(['success:true',$note_data]);
+        echo json_encode(['success'=>'true','data'=>$note_data]);
     }
 ?>

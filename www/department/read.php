@@ -18,5 +18,5 @@ $note = new Note($db);
 
 // query department
 $notes = $note->getNotes();
-echo json_encode(['success:true',$notes]);
+echo json_encode(['success' => 'true','data'=>$notes]);
 ?>

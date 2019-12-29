@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script
+        src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+        crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    </head>
+<body>
+    <div id="app">
+     <div class="container">
+        <h2 class="mt-4">Vue Note App</h2>
+  
+        <div class="card card-body"  v-if="errorMsg.length > 0">
+            <div class="alert alert-danger">
+                    {{ errorMsg }}
+            </div>
+        </div>
+        <div class="card card-body"  v-if="successMsg.length > 0">
+            <div class="alert alert-success">
+                {{ successMsg }}
+            </div>
+        </div>
+
+        <div class="card card-body mt-3 ">
+            <div class="row">
+                <div class="col-sm-3">
+                    <p>Title</p>
+                    <input class="form-control" type="text" v-model="title">
+                </div>
+
+                <div class="col-sm-6">
+                    <p>Description</p>
+                    <textarea class="form-control" v-model="description" rows="3" cols="30"></textarea>
+                </div>
+                <div class="col-sm-3">
+                    <button class="btn btn-success" v-on:click="addNote">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-body mt-3 " v-for="(note, index) in notes.data">
+            <p>
+                <button class="btn btn-danger mb-2" v-on:click="deleteNote(note.id)">X</button>
+                <button class="btn btn-danger mb-2" v-on:click="editNote(note.id)">Edit</button>
+
+            </p>
+            <h2>{{ note.title }}</h2> 
+            <div>
+                {{ note.description }}
+            </div>   
+        </div>
+
+
+     </div>
+
+     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card card-body mt-3 ">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <p>Title</p>
+                            
+                            <input class="form-control" type="hidden" v-model="edit_id">
+                            <input class="form-control" type="text" v-model="edit_title">
+                        </div>
+        
+                        <div class="col-sm-8">
+                            <p>Description</p>
+                            <textarea class="form-control" v-model="edit_description" rows="3" cols="30"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button class="btn btn-success" v-on:click="updateNote">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    var app = new Vue({
+    el: '#app',
+    data: {
+        title: '',
+        description:'',
+        edit_id: '',
+        edit_title: '',
+        edit_description:'',
+        notes:[],
+        errorMsg:'',
+        successMsg:''
+    },
+
+    mounted(){
+        this.fetchData();
+    },
+    methods:{
+        addNote(){
+            let title = this.title;
+            let desc = this.description;
+            if(title.length >0 && desc.length >0){
+                let singleNote = {
+                    title : title,
+                    description : desc
+                }
+
+                const param = new URLSearchParams();
+                param.append('title',title);
+                param.append('description',desc);
+
+                axios.post('http://localhost/php-rest-api/www/department/add-note.php', param)
+                .then(function (response) {
+                    
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                this.fetchData();
+                this.errorMsg="";
+                this.successMsg="Added Successfully"
+                this.title="";
+                this.description ="";
+            }else{
+                this.errorMsg="Required field";
+                this.successMsg=""
+                return;
+            }
+        },
+        deleteNote(index){
+            var vm = this;
+            const param = new URLSearchParams();
+                param.append('id',index);
+                axios.post('http://localhost/php-rest-api/www/department/delete-note.php', param)
+                .then(function (response) {
+                    vm.fetchData();
+
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+                this.errorMsg="Removed";
+                this.successMsg=""
+        },
+        editNote(index){
+            var vm = this;
+           $('#exampleModal').modal('show');
+            axios.get('http://localhost/php-rest-api/www/department/show-note.php?id='+index)
+            .then(function (response) {
+                // vm.notes = response.data;
+                vm.edit_id = response.data.data.id;
+                 vm.edit_title = response.data.data.title;
+                 vm.edit_description = response.data.data.description;
+
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+        },
+
+        updateNote(){
+            let id = this.edit_id;
+            let title = this.edit_title;
+            let desc = this.edit_description;
+            var vm = this;
+            if(id.length >0){
+                const param = new URLSearchParams();
+                param.append('id',id);
+                param.append('title',title);
+                param.append('description',desc);
+
+                axios.post('http://localhost/php-rest-api/www/department/edit-note.php', param)
+                .then(function (response) {
+                    $('#exampleModal').modal('hide');
+                    vm.fetchData();
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+                this.errorMsg="";
+                this.successMsg="Added Successfully"
+                this.title="";
+                this.description ="";
+            }else{
+                this.errorMsg="Required field";
+                this.successMsg=""
+                return;
+            }
+        },
+        fetchData(){
+            var vm = this;
+            axios.get('http://localhost/php-rest-api/www/department/read.php')
+            .then(function (response) {
+                vm.notes = response.data;
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+        }
+    }
+    });
+</script>
+</body>
+</html>
