@@ -27,6 +27,13 @@ class Note {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    function searchNotes($search) {
+        $query = "select * from ". $this->table_name . " where title like ? or description like ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(array("%$search%" , "%$search%"));
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
     public function findNote($id){
         $query = "select * from ". $this->table_name . " where id = ? limit 1";

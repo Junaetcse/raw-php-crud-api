@@ -1,0 +1,18 @@
+body{
+    background: gray;
+}
+ th {
+    background-color: darkgrey;
+}
+
+.add-form{
+   /* background-color: darkgrey; */
+}
+
+
+.search-from{
+    min-width: 300px;
+    margin-top: 10px;
+    padding: 6px;
+    border: 2px solid #9c9292;
+}

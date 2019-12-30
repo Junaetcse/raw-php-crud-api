@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-    <head>
+    <link>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script
         src="https://code.jquery.com/jquery-3.4.1.js"
@@ -10,55 +10,72 @@
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
+        <link rel="stylesheet" href="style.css"></link>
     </head>
 <body>
     <div id="app">
-     <div class="container">
-        <h2 class="mt-4">Vue Note App</h2>
-  
-        <div class="card card-body"  v-if="errorMsg.length > 0">
-            <div class="alert alert-danger">
-                    {{ errorMsg }}
-            </div>
-        </div>
-        <div class="card card-body"  v-if="successMsg.length > 0">
-            <div class="alert alert-success">
-                {{ successMsg }}
-            </div>
-        </div>
+    <div class="container">
+      
+
+        
 
         <div class="card card-body mt-3 ">
-            <div class="row">
-                <div class="col-sm-3">
-                    <p>Title</p>
-                    <input class="form-control" type="text" v-model="title">
-                </div>
 
-                <div class="col-sm-6">
-                    <p>Description</p>
-                    <textarea class="form-control" v-model="description" rows="3" cols="30"></textarea>
-                </div>
-                <div class="col-sm-3">
-                    <button class="btn btn-success" v-on:click="addNote">Add</button>
+            <h2 class="mt-4">Vue Note App</h2>
+  
+            <div class="card card-body"  v-if="errorMsg.length > 0">
+                <div class="alert alert-danger">
+                        {{ errorMsg }}
                 </div>
             </div>
+            <div class="card card-body"  v-if="successMsg.length > 0">
+                <div class="alert alert-success">
+                    {{ successMsg }}
+                </div>
+            </div>
+
+            <div class="card card-body my-3 ">
+                <div class="row add-form">
+                    <div class="col-sm-4">
+                        <p>Title</p>
+                        <input class="form-control" type="text" v-model="title">
+                        <button class="btn btn-success btn-block mt-2" v-on:click="addNote">Add</button>
+
+                    </div>
+        
+                    <div class="col-sm-8">
+                        <p>Description</p>
+                        <textarea class="form-control" v-model="description" rows="3" cols="30"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-notes mb-2">
+                <input type="text" v-model="search" placeholder="Search Note Title" class="float-right search-from" @input="searchText">
+                <div class="clearfix"></div>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(note, index) in notes.data">
+                        <td>{{ index+1 }}</td>
+                        <td>{{ note.title }}</td> 
+                        <td>{{ note.description }}</td>   
+                        <td>
+                            <button class="btn btn-danger mb-2" v-on:click="editNote(note.id)">Edit</button>
+                            <button class="btn btn-danger mb-2" v-on:click="deleteNote(note.id)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
-        <div class="card card-body mt-3 " v-for="(note, index) in notes.data">
-            <p>
-                <button class="btn btn-danger mb-2" v-on:click="deleteNote(note.id)">X</button>
-                <button class="btn btn-danger mb-2" v-on:click="editNote(note.id)">Edit</button>
-
-            </p>
-            <h2>{{ note.title }}</h2> 
-            <div>
-                {{ note.description }}
-            </div>   
-        </div>
-
-
-     </div>
+    </div>
 
      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -110,7 +127,8 @@
         edit_description:'',
         notes:[],
         errorMsg:'',
-        successMsg:''
+        successMsg:'',
+        search:''
     },
 
     mounted(){
@@ -209,6 +227,17 @@
                 this.successMsg=""
                 return;
             }
+        },
+        searchText(){
+             var vm = this;
+             axios.get('http://localhost/php-rest-api/www/department/search-note.php?search='+vm.search)
+            .then(function (response) {
+                vm.notes = response.data;
+                console.log(response);
+            })
+            .catch(function (error) {
+                //console.log(error);
+            })
         },
         fetchData(){
             var vm = this;
